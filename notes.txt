@@ -1,5 +1,5 @@
 user=admin
 password=bolodecenoura
 
-user=Cloves_Paiva
+user=Cloves
 password=pasteldefeira
