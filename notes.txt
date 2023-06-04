@@ -3,3 +3,9 @@ password=bolodecenoura
 
 user=Cloves
 password=pasteldefeira
+
+user=Daniela
+password=feijaocomarroz
+
+user=Fabiano
+password=feijaonoprato
