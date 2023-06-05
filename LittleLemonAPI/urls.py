@@ -5,4 +5,5 @@ urlpatterns = [
     path("categories/", views.CategoryView.as_view()),
     path("menu-items/", views.MenuItemView.as_view()),
     path("menu-items/<int:pk>/", views.SingleMenuItemView.as_view()),
+    path("groups/manager/users/", views.ManagerView.as_view()),
 ]

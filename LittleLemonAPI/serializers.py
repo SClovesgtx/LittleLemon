@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User, Group
 from rest_framework import serializers, permissions
 from rest_framework.validators import UniqueValidator
 import bleach
@@ -51,5 +52,50 @@ class MenuItemSerializer(serializers.Serializer):
         if len(value) <= 1:
             raise serializers.ValidationError(
                 "Title must be at least 2 characters long"
+            )
+        return bleach.clean(value)
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ["id", "name"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    # a list of groups the user belongs to
+    groups = GroupSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "password", "groups"]
+        read_only_fields = ["groups"]
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def create(self, validated_data):
+        """Create user only in the manager group."""
+        validated_data["is_staff"] = True
+        validated_data["is_active"] = True
+        # assign Manager group to user
+        groups = [{"name": "Manager", "id": 3}]
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # update user's password
+        if "password" in validated_data:
+            instance.set_password(validated_data["password"])
+        return super().update(instance, validated_data)
+
+    def validate_username(self, value):
+        if len(value) <= 1:
+            raise serializers.ValidationError(
+                "Username must be at least 2 characters long"
+            )
+        return bleach.clean(value)
+
+    def validate_email(self, value):
+        if len(value) <= 1:
+            raise serializers.ValidationError(
+                "Email must be at least 2 characters long"
             )
         return bleach.clean(value)

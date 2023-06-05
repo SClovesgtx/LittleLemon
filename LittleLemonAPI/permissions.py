@@ -9,3 +9,10 @@ class OnlyGETPermission(permissions.BasePermission):
         ):
             return request.method == "GET"
         return True
+
+
+class OnlyManagerPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.groups.filter(name="Manager").exists():
+            return True
+        return False
