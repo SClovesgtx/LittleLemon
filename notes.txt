@@ -9,3 +9,6 @@ password=feijaocomarroz
 
 user=Fabiano
 password=feijaonoprato
+
+user=Alex
+password=boidemamao

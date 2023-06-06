@@ -63,22 +63,18 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    # a list of groups the user belongs to
-    groups = GroupSerializer(many=True, read_only=True)
+    groups = GroupSerializer(many=True)
 
     class Meta:
         model = User
         fields = ["id", "username", "email", "password", "groups"]
-        read_only_fields = ["groups"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
-        """Create user only in the manager group."""
-        validated_data["is_staff"] = True
-        validated_data["is_active"] = True
-        # assign Manager group to user
-        groups = [{"name": "Manager", "id": 3}]
-        return super().create(validated_data)
+        user = User.objects.create_user(**validated_data)
+        group = Group.objects.get(name="Manager")
+        user.groups.add(group)
+        return user
 
     def update(self, instance, validated_data):
         # update user's password
