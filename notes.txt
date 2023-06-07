@@ -12,3 +12,9 @@ password=feijaonoprato
 
 user=Alex
 password=boidemamao
+
+user=José
+password=joaoemaria
+
+user=João
+password=joaopedefeijao

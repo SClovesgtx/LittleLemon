@@ -62,7 +62,7 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ["id", "name"]
 
 
-class UserSerializer(serializers.ModelSerializer):
+class ManagerSerializer(serializers.ModelSerializer):
     groups = GroupSerializer(many=True)
 
     class Meta:
@@ -73,6 +73,42 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         group = Group.objects.get(name="Manager")
+        groups = self.context.get("default_groups", [])
+        user.groups.add(groups[0])
+        return user
+
+    def update(self, instance, validated_data):
+        # update user's password
+        if "password" in validated_data:
+            instance.set_password(validated_data["password"])
+        return super().update(instance, validated_data)
+
+    def validate_username(self, value):
+        if len(value) <= 1:
+            raise serializers.ValidationError(
+                "Username must be at least 2 characters long"
+            )
+        return bleach.clean(value)
+
+    def validate_email(self, value):
+        if len(value) <= 1:
+            raise serializers.ValidationError(
+                "Email must be at least 2 characters long"
+            )
+        return bleach.clean(value)
+
+
+class DeliveryCrewSerializer(serializers.ModelSerializer):
+    groups = GroupSerializer(many=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "password", "groups"]
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        group = Group.objects.get(name="delivery crew")
         user.groups.add(group)
         return user
 
