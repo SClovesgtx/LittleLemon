@@ -11,6 +11,8 @@ from .serializers import (
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .permissions import OnlyGETPermission, OnlyManagerPermission
+from rest_framework.response import Response
+from rest_framework import status
 
 
 # Create your views here.
@@ -44,11 +46,22 @@ class ManagerView(generics.ListCreateAPIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated, OnlyManagerPermission]
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        group = Group.objects.get(name="Manager")
-        context["default_groups"] = [group]
-        return context
+
+class ManagerDeleteUserView(generics.DestroyAPIView):
+    """
+    View to list all managers and create new ones
+    """
+
+    # get all Users from group manager
+    queryset = User.objects.filter(groups__name="Manager")
+    serializer_class = ManagerSerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated, OnlyManagerPermission]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 class DeliveryCrewView(generics.ListCreateAPIView):
@@ -61,3 +74,20 @@ class DeliveryCrewView(generics.ListCreateAPIView):
     serializer_class = DeliveryCrewSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated, OnlyManagerPermission]
+
+
+class DeliveryCrewDeleteUserView(generics.DestroyAPIView):
+    """
+    View to list all managers and create new ones
+    """
+
+    # get all Users from group manager
+    queryset = User.objects.filter(groups__name="delivery crew")
+    serializer_class = DeliveryCrewSerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated, OnlyManagerPermission]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)

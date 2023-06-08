@@ -63,18 +63,20 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class ManagerSerializer(serializers.ModelSerializer):
-    groups = GroupSerializer(many=True)
-
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password", "groups"]
+        fields = ["id", "username", "email", "password"]
+        read_only_fields = ["groups"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
+        """The user is created with manager group."""
+        validated_data["is_staff"] = True
+        validated_data["is_active"] = True
         user = User.objects.create_user(**validated_data)
+        # get group manager
         group = Group.objects.get(name="Manager")
-        groups = self.context.get("default_groups", [])
-        user.groups.add(groups[0])
+        user.groups.add(group)
         return user
 
     def update(self, instance, validated_data):
@@ -99,14 +101,14 @@ class ManagerSerializer(serializers.ModelSerializer):
 
 
 class DeliveryCrewSerializer(serializers.ModelSerializer):
-    groups = GroupSerializer(many=True)
-
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password", "groups"]
+        fields = ["id", "username", "email", "password"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
+        validated_data["is_staff"] = True
+        validated_data["is_active"] = True
         user = User.objects.create_user(**validated_data)
         group = Group.objects.get(name="delivery crew")
         user.groups.add(group)
