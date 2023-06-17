@@ -16,3 +16,9 @@ class OnlyManagerPermission(permissions.BasePermission):
         if request.user.groups.filter(name="Manager").exists():
             return True
         return False
+    
+class OnlyClientPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.groups.filter(name="Manager").exists() or request.user.groups.filter(name="delivery crew").exists():
+            return False
+        return True
