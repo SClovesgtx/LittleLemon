@@ -16,13 +16,20 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
-# Create your views here.
 class CategoryView(generics.ListCreateAPIView):
+    """
+    Endpoint to list all categories and create new ones
+    """
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class MenuItemView(generics.ListCreateAPIView):
+    """
+    Endpoint to list all menu items and create new ones
+    """
+
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
@@ -30,6 +37,10 @@ class MenuItemView(generics.ListCreateAPIView):
 
 
 class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Endpoint to retrieve, update or delete a single menu item
+    """
+
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
@@ -41,7 +52,6 @@ class ManagerView(generics.ListCreateAPIView):
     View to list all managers and create new ones
     """
 
-    # get all Users from group manager
     queryset = User.objects.filter(groups__name="Manager")
     serializer_class = ManagerSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
@@ -50,10 +60,9 @@ class ManagerView(generics.ListCreateAPIView):
 
 class ManagerDeleteUserView(generics.DestroyAPIView):
     """
-    View to list all managers and create new ones
+    Endpoint to delete managers users
     """
 
-    # get all Users from group manager
     queryset = User.objects.filter(groups__name="Manager")
     serializer_class = ManagerSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
@@ -67,10 +76,9 @@ class ManagerDeleteUserView(generics.DestroyAPIView):
 
 class DeliveryCrewView(generics.ListCreateAPIView):
     """
-    View to list all managers and create new ones
+    Endpoint to list all delivery crew users and create new ones
     """
 
-    # get all Users from group manager
     queryset = User.objects.filter(groups__name="delivery crew")
     serializer_class = DeliveryCrewSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
@@ -79,10 +87,9 @@ class DeliveryCrewView(generics.ListCreateAPIView):
 
 class DeliveryCrewDeleteUserView(generics.DestroyAPIView):
     """
-    View to list all managers and create new ones
+    Endpoint to delete delivery crew users
     """
 
-    # get all Users from group manager
     queryset = User.objects.filter(groups__name="delivery crew")
     serializer_class = DeliveryCrewSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
@@ -93,12 +100,12 @@ class DeliveryCrewDeleteUserView(generics.DestroyAPIView):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
 
+
 class CartManagementView(generics.ListCreateAPIView, generics.DestroyAPIView):
     """
-    View to list all items in cart and create new ones
+    Endpoint to list all items in cart and create new ones
     """
 
-    # get all Users from group manager
     queryset = Cart.objects.all()
     serializer_class = CartManagementSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
