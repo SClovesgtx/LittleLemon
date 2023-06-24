@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     "djoser",
     "LittleLemonAPI",
 ]
@@ -153,4 +154,9 @@ REST_FRAMEWORK = {
         "user": "2/minute",  # authenticated users can make 2 requests per minute
         "ten": "10/minute",  # personalized throttle rate for authenticate users
     },
+}
+
+
+DJOSER = {
+    "USER_ID_FIELD": "username",
 }

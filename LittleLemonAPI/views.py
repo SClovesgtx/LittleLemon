@@ -1,16 +1,25 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import generics
-from .models import Category, MenuItem
+from .models import Category, MenuItem, Cart
 from .serializers import (
     CategorySerializer,
     MenuItemSerializer,
     ManagerSerializer,
     DeliveryCrewSerializer,
+    CartSerializer,
 )
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authentication import (
+    SessionAuthentication,
+    BasicAuthentication,
+    TokenAuthentication,
+)
 from rest_framework.permissions import IsAuthenticated
-from .permissions import OnlyGETPermission, OnlyManagerPermission
+from .permissions import (
+    OnlyGETPermission,
+    OnlyManagerPermission,
+    OnlyCustomerPermission,
+)
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -91,3 +100,15 @@ class DeliveryCrewDeleteUserView(generics.DestroyAPIView):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
+
+
+class CartView(generics.ListCreateAPIView, generics.DestroyAPIView):
+    """
+    View to list all managers and create new ones
+    """
+
+    # get all Users from group manager
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated, OnlyCustomerPermission]

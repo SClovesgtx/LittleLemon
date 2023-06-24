@@ -3,7 +3,7 @@ from rest_framework import serializers, permissions
 from rest_framework.validators import UniqueValidator
 import bleach
 
-from .models import Category, MenuItem
+from .models import Category, MenuItem, Cart
 
 
 class CategorySerializer(serializers.Serializer):
@@ -133,3 +133,30 @@ class DeliveryCrewSerializer(serializers.ModelSerializer):
                 "Email must be at least 2 characters long"
             )
         return bleach.clean(value)
+
+
+class CartSerializer(serializers.Serializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    menuitem = serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all())
+    quantity = serializers.IntegerField()
+    unit_price = serializers.DecimalField(max_digits=6, decimal_places=2)
+    price = serializers.DecimalField(max_digits=6, decimal_places=2)
+
+    class Meta:
+        model = Cart
+        fields = "__all__"
+        extra_kwargs = {
+            "quantity": {"min": 1},
+            "unit_price": {"min": 0.01},
+            "price": {"min": 0.01},
+        }
+
+    def create(self, validated_data):
+        # get menu-item price
+        # menu_item = MenuItem.objects.get(id=validated_data["menuitem"])
+        # validated_data["unit_price"] = menu_item.price
+        # validated_data["price"] = menu_item.price * validated_data["quantity"]
+        # # get User by name from User model
+        # user = User.objects.get(username=validated_data["user"])
+        # validated_data["user"] = user
+        return super().create(validated_data)

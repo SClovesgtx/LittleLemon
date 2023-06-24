@@ -16,3 +16,11 @@ class OnlyManagerPermission(permissions.BasePermission):
         if request.user.groups.filter(name="Manager").exists():
             return True
         return False
+
+
+class OnlyCustomerPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        # the customer is in any group
+        if not request.user.groups.all():
+            return True
+        return False

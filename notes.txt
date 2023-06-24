@@ -1,5 +1,6 @@
 user=admin
 password=bolodecenoura
+token=2f517848a4c9a3704ad6899528b314451bfd2673
 
 user=Cloves
 password=pasteldefeira
@@ -18,3 +19,7 @@ password=joaoemaria
 
 user=João
 password=joaopedefeijao
+
+user=Maria 
+password=joaoemaria
+token=fc73d57160795a030459fa6619229d83181b9e77
