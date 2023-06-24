@@ -3,7 +3,7 @@ from rest_framework import serializers, permissions
 from rest_framework.validators import UniqueValidator
 import bleach
 
-from .models import Category, MenuItem, Cart
+from .models import Category, MenuItem, Cart, Order, OrderItem
 
 
 class CategorySerializer(serializers.Serializer):
@@ -133,13 +133,17 @@ class DeliveryCrewSerializer(serializers.ModelSerializer):
                 "Email must be at least 2 characters long"
             )
         return bleach.clean(value)
-    
+
 
 class CartManagementSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(default=serializers.CurrentUserDefault(), read_only=True)
+    user = serializers.PrimaryKeyRelatedField(
+        default=serializers.CurrentUserDefault(), read_only=True
+    )
     menuitem = serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all())
     quantity = serializers.IntegerField(min_value=1)
-    unit_price = serializers.DecimalField(max_digits=6, decimal_places=2, read_only=True)
+    unit_price = serializers.DecimalField(
+        max_digits=6, decimal_places=2, read_only=True
+    )
     price = serializers.DecimalField(max_digits=6, decimal_places=2, read_only=True)
 
     class Meta:
@@ -156,12 +160,11 @@ class CartManagementSerializer(serializers.ModelSerializer):
         internal_value["price"] = menu_item.price * quantity
 
         return internal_value
-    
+
     def create(self, validated_data):
         user = self.context["request"].user
         menu_item = validated_data["menuitem"]
         quantity = validated_data["quantity"]
-
 
         cart_item, created = Cart.objects.get_or_create(user=user, menuitem=menu_item)
 
@@ -174,6 +177,62 @@ class CartManagementSerializer(serializers.ModelSerializer):
         return cart_item
 
 
-    
+# class OrderSerializer(serializers.Serializer):
+#     user = serializers.PrimaryKeyRelatedField(
+#         default=serializers.CurrentUserDefault(), read_only=True
+#     )
+#     delivery_crew = serializers.PrimaryKeyRelatedField(
+#         queryset=User.objects.filter(groups__name="delivery crew")
+#     )
+#     status = serializers.CharField(max_length=50, read_only=True)
+#     total = serializers.DecimalField(max_digits=6, decimal_places=2, read_only=True)
+#     date = serializers.DateTimeField(read_only=True)
 
-    
+#     class Meta:
+#         model = Order
+#         fields = ["user", "delivery_crew", "order_items", "status", "total", "date"]
+
+#     def to_internal_value(self, data):
+#         internal_value = super().to_internal_value(data)
+#         user = self.context["request"].user
+#         order_items = Cart.objects.filter(user=user).all()
+
+#         total_price = 0
+#         for order_item in order_items:
+#             total_price += order_item.price
+
+#         internal_value["total"] = total_price
+
+#         return internal_value
+
+#     def create(self, validated_data):
+#         """
+#         Creates a new order item for the current user.
+#         Gets current cart items from the cart endpoints and
+#         adds those items to the order items table.
+#         Then deletes all items from the cart for this user.
+#         """
+#         user = self.context["request"].user
+#         delivery_crew = validated_data["delivery_crew"]
+#         # the most recent cart items witch has some items
+#         cart = Cart.objects.filter(user=user).first()
+#         order_items = [
+#             MenuItem.objects.filter(title=item.menuitem.title) for item in cart
+#         ]
+
+#         order = Order.objects.create(
+#             user=user, delivery_crew=delivery_crew, total=validated_data["total"]
+#         )
+
+#         for order_item in order_items:
+#             OrderItem.objects.create(
+#                 order=order,
+#                 menuitem=order_item,
+#                 quantity=cart.quantity,
+#                 unit_price=order_item.unit_price,
+#                 price=order_item.price,
+#             )
+
+#         Cart.objects.filter(user=user).delete()
+
+#         return order

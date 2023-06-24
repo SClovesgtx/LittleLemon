@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import generics
-from .models import Category, MenuItem, Cart
+from .models import Category, MenuItem, Cart, Order
 from .serializers import (
     CategorySerializer,
     MenuItemSerializer,
     ManagerSerializer,
     DeliveryCrewSerializer,
     CartManagementSerializer,
+    # OrderSerializer,
 )
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -109,9 +110,20 @@ class CartManagementView(generics.ListCreateAPIView, generics.DestroyAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartManagementSerializer
     authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated, OnlyClientPermission]
+    permission_classes = [IsAuthenticated]  # , OnlyClientPermission]
 
     def destroy(self, request, *args, **kwargs):
         user = request.user
         Cart.objects.filter(user=user).delete()
         return Response(status=status.HTTP_200_OK)
+
+
+# class OrderView(generics.ListCreateAPIView):
+#     """
+#     Endpoint to list all orders and create new ones
+#     """
+
+#     queryset = Order.objects.all()
+#     serializer_class = OrderSerializer
+#     authentication_classes = [SessionAuthentication, BasicAuthentication]
+#     permission_classes = [IsAuthenticated, OnlyClientPermission]
